@@ -1,40 +1,1 @@
-
-// Wait for DOM to Load
-jQuery(function($) {
-    
-    // Create New Socket Connection using Socket.io
-    var socket = io();
-
-    var isPlayerTrue = false;
-
-    //io.emit('name','Anonymous');
-
-    //socket.on('sockets', function(sockets){
-    //    $('.players').empty();
-    //
-    //    sockets.forEach(function(socket) {
-    //        $('.players').append(
-    //            $('<li>').text(socket.name)
-    //        );
-    //    });
-    //});
-
-    socket.on('player', function(){
-        console.log('you are a player');
-        isPlayerTrue = true;
-    });
-
-    socket.on('guest', function(){
-        console.log('you are a guest');
-        isPlayerTrue = false;
-    });
-
-    //var playerReady = function(){
-    //
-    //};
-
-    socket.on('numOfPplOnline', function(count){
-        console.log(count.players + ' player(s), ' + count.guests + ' guest(s)');
-    });
-
-});
+// Wait for DOM to LoadjQuery(function($) {        // Create New Socket Connection using Socket.io    var socket = io();    var isPlayerTrue = false;    var myID;    socket.on('myId', function(playerID){        myID = playerID;        console.log('my id: ' + myID);    });    //Needs refactoring    socket.on('allPlayers', function(players){        players.forEach(function(player) {            //console.log(player);            insertUser(player, '.players');        });    });    socket.on('allGuests', function(guests){        guests.forEach(function(guest) {            insertUser(guest, '.guest');        });    });    socket.on('newPlayer',function(player){        insertUser(player, '.players');    });    socket.on('newGuest',function(player){        insertUser(player, '.guest');    });    var insertUser = function(user,list){        if(user.userID == myID){            $(list)                .append($('<li>')                    .attr('id', '' + user.userID)                    .attr('class', 'me')                    .append($('<span>').text('(you) ' + user.name))                    .append($('<input>').hide().bind("enterKey", userIdentified)                ));        }else{            $(list)                .append($('<li>')                    .text(user.name)                    .attr('id', '' + user.userID)                );        }    };    var userIdentified = function(){        $('.me span')            .text($('.me input').value)            .show();        $('.me input').hide();    };    $(document).on ('click', '.me', function () {        $('.me span').hide();        $('.me input').show();    });    $(document).on ('keypress', '.me input', (function (e) {        var key = e.which;        if(key == 13)  // the enter key code        {            var value =  $('.me input').val();            $('.me span').text(value).show();            $('.me input').hide();        }    }));    socket.on('remove', function(player){        $('#' + player.userID).remove();    });    //socket.on('player', function(){    //    console.log('you are a player');    //    isPlayerTrue = true;    //});    //    //socket.on('guest', function(){    //    console.log('you are a guest');    //    isPlayerTrue = false;    //});    //var playerReady = function(){    //    //};    socket.on('numOfPplOnline', function(count){        console.log(count.players + ' player(s), ' + count.guests + ' guest(s)');    });});
