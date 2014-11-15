@@ -13,6 +13,7 @@ jQuery(function($) {
 
     //initial submit off all users
     socket.on('users', function(users){
+        console.log(users);
         clearUsers('.players');
         users.players.forEach(function(player) {
             insertUser(player, '.players');
