@@ -20,10 +20,13 @@ jQuery(function($) {
         users.guests.forEach(function(guest) {
             insertUser(guest, '.guest');
         });
+        console.log('initialSubmit:');
+        console.log(users);
     });
 
     //new player joined
     socket.on('newPlayer',function(user){
+        console.log('new Player joined');
         insertUser(user, '.players');
     });
 
@@ -102,6 +105,7 @@ jQuery(function($) {
     //remove the user who left
     socket.on('remove', function(user){
         $('#' + user.userID).remove();
+        console.log('user left: ' + user.userID);
     });
 
     socket.on('gameAboutToStart', function(){
