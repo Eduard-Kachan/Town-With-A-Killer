@@ -6,6 +6,7 @@
 var fs        = require('fs');
 var gulp      = require('gulp');
 var sass      = require('gulp-sass');
+var stylus    = require('gulp-stylus');
 var jade      = require('gulp-jade');
 var imagemin  = require('gulp-sass');
 var rename    = require('gulp-rename');
@@ -15,7 +16,7 @@ var rename    = require('gulp-rename');
 // ------------------------------------
 
 var paths     = {
-  styles      : './src/assets/styles/**/*.sass',
+  styles      : './src/assets/styles/**/*.styl',
   scripts     : './src/assets/scripts/**/*.js',
   images      : './src/assets/images/**/*.{png,gif,jpeg,jpg,svg}',
   templates   : './src/**/*.jade'
@@ -46,19 +47,12 @@ gulp.task('watch', function() {
 
 gulp.task('styles', function() {
 
-  gulp.src('./src/assets/styles/index.sass')
-    .pipe(sass())
-    .pipe(rename('main.css'))
-    .pipe(gulp.dest('./public/assets/styles/'));
-
-  ////gulp.src('./src/assets/styles/index.styl')
-  ////  .pipe(stylus())
-  ////  //.pipe(rename('main.css'))
-  ////  .pipe(gulp.dest('./public/assets/styles/'))
-  //
   //gulp.src('./src/assets/styles/index.styl')
-  //    .pipe(stylus())
-  //    .pipe(gulp.dest('./public/assets/styles/'));
+  gulp.src(paths.styles)
+      .pipe(stylus())
+      .pipe(gulp.dest('./public/assets/styles/'));
+      //.pipe(rename('main.css'))
+
 
 });
 

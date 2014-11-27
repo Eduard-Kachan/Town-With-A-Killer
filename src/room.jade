@@ -6,25 +6,26 @@ html
         title Killler In Town
         meta(name="description", content="Hello World")
         meta(name="viewport", content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, minimal-ui")
-        link(rel="stylesheet", href="../styles/index.css", type="text/css")
+        link(rel="stylesheet", href="/assets/styles/index.css", type="text/css")
     body
-        .wrapper
-            h2.gameState
 
+        h1.gameState
+        h2.timer ...
+
+        div.container
             .listOfUsers.pls
                 h3 Players
                 ul.players Players
-            .listOfUsers.gus
-                h3 Guests
-                ul.guests
-
             .chat
                 ul
-                    li
-                        p User: message
+                    li Welcome to the chat!!
 
-                input
-                button send
+                input.message
+                button.send send
+            h2.playerClass ...
+            ul.couseList
+
+
         script(type="text/javascript", src="https://code.jquery.com/jquery-2.1.1.min.js")
         script(type="text/javascript", src="https://cdn.socket.io/socket.io-1.1.0.js")
-        script(type="text/javascript", src="../scripts/roomScript.js")
+        script(type="text/javascript", src="/assets/scripts/roomScript.js")

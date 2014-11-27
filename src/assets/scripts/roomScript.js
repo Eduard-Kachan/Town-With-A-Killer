@@ -16,10 +16,10 @@ jQuery(function($) {
             insertUser(player, '.players');
         });
 
-        clearUsers('.guest');
-        users.guests.forEach(function(guest) {
-            insertUser(guest, '.guest');
-        });
+        //clearUsers('.guest');
+        //users.guests.forEach(function(guest) {
+        //    insertUser(guest, '.guest');
+        //});
         console.log('initialSubmit:');
         console.log(users);
     });
@@ -74,6 +74,10 @@ jQuery(function($) {
         $('.gameState').text(gameState);
     };
 
+    var userDied = function(user){
+        user.addClass( "died" );
+    };
+
     //User clicked on their name to change it
     $(document).on ('click', '.me span', function () {
         $('.me span').hide();
@@ -97,6 +101,29 @@ jQuery(function($) {
         }
     });
 
+    $('button.send').on('click', function () {
+        var message = $('input.message').val();
+        socket.emit('message', message);
+        $('input.message').val('');
+    });
+
+    $('input.message').on('keypress', function(e){
+        var key = e.which;
+        if(key == 13)  // the enter key code
+        {
+            var message = $('input.message').val();
+            socket.emit('message', message);
+            $('input.message').val('');
+            $('input.message').focus();
+        }
+    });
+
+    socket.on('messagelog', function(message){
+        $('.chat ul').append(
+            $('<li>').text(message)
+        ).scrollTop(1E10);
+    });
+
     //change user's name
     socket.on('identified', function(user){
         $('#' + user.userID + ' span').text(user.name);
@@ -104,8 +131,12 @@ jQuery(function($) {
 
     //remove the user who left
     socket.on('remove', function(user){
-        $('#' + user.userID).remove();
-        console.log('user left: ' + user.userID);
+        var currentUser = $('#' + user.userID);
+        if(gameState == 'Day' || gameState == 'Night'){
+            userDied(currentUser);
+        }else{
+            currentUser.remove();
+        }
     });
 
     socket.on('gameAboutToStart', function(){
@@ -113,7 +144,35 @@ jQuery(function($) {
     });
 
     socket.on('timer', function(time){
-        console.log('Game about to start!')
+        //console.log('Game about to start!')
+        if(gameState == 'About To Start'){
+            $('h2.timer').text('Game starts in ' + time + 's');
+        }else if(gameState == 'Day'){
+            $('h2.timer').text('Day ends in ' + time + 's');
+        }else if(gameState == 'Night'){
+            $('h2.timer').text('Night ends in ' + time + 's');
+        }
+    });
+
+    socket.on('type', function(type){
+        $('h2.playerClass').text(type);
+    });
+
+    socket.on('vote', function(list){
+        $('ul.couseList').empty();
+        var voteList = $('ul.couseList');
+        voteList.append(
+          $('h3').text('Vote:')
+        );
+        list.forEach(function(item){
+            voteList.append(
+                $('<li>').append(
+                    $('<button>')
+                        .text(item.username)
+                        .addClass(item.userID)
+                )
+            );
+        });
     });
 
 });
