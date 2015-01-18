@@ -3,16 +3,17 @@
 // Libraries
 // ------------------------------------
 
-var fs        = require('fs');
+//var fs        = require('fs');
 var gulp      = require('gulp');
-var sass      = require('gulp-sass');
+//var sass      = require('gulp-sass');
 var stylus    = require('gulp-stylus');
 var jade      = require('gulp-jade');
-var imagemin  = require('gulp-sass');
+var imagemin  = require('gulp-imagemin');
 var rename    = require('gulp-rename');
 
 // ------------------------------------
 // Paths
+// Pathsfs
 // ------------------------------------
 
 var paths     = {

@@ -1,7 +1,7 @@
 {
-  "name": "Serial Killer Game",
+  "name": "Town-With-A-Killer",
   "description": "description",
-  "version": "0.0.0",
+  "version": "0.2.0",
   "homepage": "http://edvaard.ca/",
   "author": "Eduard Kachan",
   "main": "server.js",
@@ -11,21 +11,10 @@
   },
   "devDependencies": {
     "underscore": "*",
-    "jade": "*",
+    "gulp-stylus": "*",
     "gulp": "*",
-    "gulp-if": "*",
-    "gulp-debug": "*",
-    "gulp-util": "*",
-    "gulp-load-plugins": "*",
-    "gulp-sass": "*",
-    "gulp-uglify": "*",
     "gulp-imagemin": "*",
-    "gulp-livereload": "*",
-    "gulp-concat": "*",
     "gulp-jade": "*",
     "gulp-rename": "*"
-  },
-  "peerDependencies": {
-    "grunt": "~0.4.0"
   }
 }
