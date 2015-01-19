@@ -28,8 +28,9 @@ function Room(rooms) {
     this.changeRoomState = function(state){
         this.roomState = this.states[state];
         this.emitToRoomUsers('gameState', this.roomState);
-        console.log(this.roomName + ' room state is now: ' + this.roomState);
-        console.log('timer ended, room state is: ' + this.roomState);
+        //console.log(this.roomName + ' room state is now: ' + this.roomState);
+        //console.log('timer ended, room state is: ' + this.roomState);
+        console.log("It's " + this.roomState + " in: " + this.roomName);
     };
 
     this.addUser = function(socket){
@@ -138,14 +139,13 @@ function Room(rooms) {
 
     this.startCountdown = function(){
         var self = this;
-
+        var timerLenght = 5;
         this.changeRoomState('aboutToStars');
         this.roomTimer = 0;
         console.log('game about to start in room: ' + this.roomName);
 
         this.countDown = setInterval(function(){
             var isCapacityNotReached = self.players.length < self.maxPlayers;
-            //var isAboutToStars = self.roomState == self.states['aboutToStars'];
 
             if(isCapacityNotReached){
                 console.log('not inofe people, clear the timer');
@@ -155,70 +155,94 @@ function Room(rooms) {
                 return;
             }
 
-            if(self.roomTimer == 5){
+            if(self.roomTimer == timerLenght){
                 console.log('game started in: ' + self.roomState);
                 self.chouseMurderer();
                 self.identifyPlayers();
                 clearInterval(self.countDown);
-                self.startDayCycle();
+                self.startDayNightCycle();
                 return;
             }
 
-            self.emitToRoomUsers('timer', 30 - self.roomTimer);
-
-            //console.log(self.roomTimer + 's until start in: ' + self.roomName);
+            self.emitToRoomUsers('timer', timerLenght - self.roomTimer);
 
             self.roomTimer = self.roomTimer + 1;
         }, 1000);
     };
 
-    this.startDayCycle = function(){
+    this.startDayNightCycle = function(){
         var self = this;
+        this.roomTimer = 0;
+        var timerLenght = 10;
 
         this.changeRoomState('day');
-        this.roomTimer = 0;
-
-        console.log("It's day in: " + this.roomName);
-
         this.sendAlistOfUsersToVote();
 
         this.countDown = setInterval(function(){
 
-            if(self.roomTimer == 30){
-                self.emitToRoomUsers('getVotes');
-                self.startNightCycle();
-                clearInterval(self.countDown);
-
-                return;
+            if(self.roomTimer == timerLenght){
+                self.roomTimer = 0;
+                if(self.roomState == 'Day'){
+                    self.emitToRoomUsers('getVotes');
+                    self.changeRoomState('night');
+                }else{
+                    self.changeRoomState('day');
+                    self.sendAlistOfUsersToVote();
+                }
             }
 
-            self.emitToRoomUsers('timer', 30 - self.roomTimer);
+            self.emitToRoomUsers('timer', timerLenght - self.roomTimer);
 
-            self.roomTimer = self.roomTimer + 1;
+            self.roomTimer += 1;
         }, 1000);
     };
 
-    this.startNightCycle = function(){
-        var self = this;
+    //this.startDayCycle = function(){
+    //    var self = this;
+    //
+    //    this.changeRoomState('day');
+    //    this.roomTimer = 0;
+    //    var timerLenght = 10;
+    //
+    //
+    //    this.sendAlistOfUsersToVote();
+    //
+    //    this.countDown = setInterval(function(){
+    //
+    //        if(self.roomTimer == timerLenght){
+    //
+    //            //self.emitToRoomUsers('getVotes');
+    //            self.startNightCycle();
+    //            clearInterval(self.countDown);
+    //
+    //            return;
+    //        }
+    //
+    //        self.emitToRoomUsers('timer', timerLenght - self.roomTimer);
+    //
+    //        self.roomTimer = self.roomTimer + 1;
+    //    }, 1000);
+    //};
 
-        this.changeRoomState('night');
-        this.roomTimer = 0;
-
-        console.log("It's night in: " + this.roomName);
-
-        this.countDown = setInterval(function(){
-
-            if(self.roomTimer == 5){
-                clearInterval(self.countDown);
-                self.startDayCycle();
-                return;
-            }
-
-            self.emitToRoomUsers('timer', 30 - self.roomTimer);
-
-            self.roomTimer = self.roomTimer + 1;
-        }, 1000);
-    };
+    //this.startNightCycle = function(){
+    //    var self = this;
+    //
+    //    this.roomTimer = 0;
+    //    var timerLenght = 10;
+    //
+    //    this.countDown = setInterval(function(){
+    //        clearInterval(self.countDown);
+    //        if(self.roomTimer == timerLenght){
+    //            //self.startDayCycle();
+    //            clearInterval(self.countDown);
+    //            return;
+    //        }
+    //
+    //        self.emitToRoomUsers('timer', timerLenght - self.roomTimer);
+    //
+    //        self.roomTimer = self.roomTimer + 1;
+    //    }, 1000);
+    //};
 
     this.emitToRoomUsers = function(emit, message){
         var send = {
@@ -273,12 +297,16 @@ function Room(rooms) {
             self.emitToRoomUsers('messagelog', messagelog);
         });
 
-        socket.on('vote', function(voteID){
+        socket.on('voteResult', function(voteID){
+
+            //console.log(voteID);
+
+            if(!voteID)return;
 
             self.players.forEach(function(player){
                 if(player.id == voteID){
                     if(!player.votesAgainst){
-                        player.votesAgainst = 0;
+                        player.votesAgainst = 1;
                     }else{
                         player.votesAgainst++;
                     }
@@ -321,7 +349,7 @@ function Room(rooms) {
             })
         });
 
-        this.emitToRoomUsers('vote', list);
+        this.emitToRoomUsers('voteList', list);
     };
 
     this.countVotes = function(){
@@ -330,8 +358,13 @@ function Room(rooms) {
 
         this.players.forEach(function(player){
             names.push(player.id);
+
+            if(!player.votesAgainst)player.votesAgainst = 0;
             votes.push(player.votesAgainst);
         });
+
+        console.log(votes);
+        console.log(names);
 
         // Get the max value from the array
         var largestVote = Math.max.apply(Math, votes);
@@ -342,7 +375,7 @@ function Room(rooms) {
 
         if(last != first){
             console.log('its a tie');
-            this.startNightCycle();
+            //this.startNightCycle();
             return;
         }
 

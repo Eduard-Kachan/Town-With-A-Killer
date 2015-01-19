@@ -6,6 +6,8 @@ jQuery(function($) {
     var myID;
     var gameState;
 
+    var voteChoice = '';
+
     //initial submit off all users
     socket.on('initialSubmit', function(users){
         myID = users.userID;
@@ -72,6 +74,10 @@ jQuery(function($) {
         gameState = state;
         console.log(gameState);
         $('.gameState').text(gameState);
+
+        if('night'){
+            $('ul.couseList').empty()
+        }
     };
 
     var userDied = function(user){
@@ -158,10 +164,9 @@ jQuery(function($) {
         $('h2.playerClass').text(type);
     });
 
-    socket.on('vote', function(list){
-        $('ul.couseList').empty();
+    socket.on('voteList', function(list){
         var voteList = $('ul.couseList');
-        voteList.append(
+        voteList.empty().append(
           $('h3').text('Vote:')
         );
         list.forEach(function(item){
@@ -169,10 +174,20 @@ jQuery(function($) {
                 $('<li>').append(
                     $('<button>')
                         .text(item.username)
-                        .addClass(item.userID)
+                        //.addClass(item.userID)
+                        .on('click', function(){
+                            voteChoice = item.userID;
+                        })
                 )
             );
         });
     });
+
+    socket.on('getVotes', function(){
+        socket.emit('voteResult', voteChoice);
+        voteChoice = '';
+    })
+
+
 
 });
